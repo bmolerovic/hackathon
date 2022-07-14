@@ -1,0 +1,42 @@
+{
+	"$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"workspaceName": {
+			"value": "asateam1"
+		},
+		"DSCloudStream_connectionString": {
+			"value": ""
+		},
+		"DSmovies_connectionString": {
+			"value": ""
+		},
+		"LSCloudSales_connectionString": {
+			"value": ""
+		},
+		"LSCoffeFiles_password": {
+			"value": ""
+		},
+		"LSVanArsdel_connectionString": {
+			"value": ""
+		},
+		"asateam1-WorkspaceDefaultSqlServer_connectionString": {
+			"value": ""
+		},
+		"ls_pom_accountKey": {
+			"value": ""
+		},
+		"LSCoffeFiles_properties_typeProperties_host": {
+			"value": "C:\\"
+		},
+		"LSCoffeFiles_properties_typeProperties_userId": {
+			"value": "southridge"
+		},
+		"asateam1-WorkspaceDefaultStorage_properties_typeProperties_url": {
+			"value": "https://sadlteam1gen2.dfs.core.windows.net"
+		},
+		"ls_pom_properties_typeProperties_url": {
+			"value": "https://sadlteam1gen2.dfs.core.windows.net/"
+		}
+	}
+}
