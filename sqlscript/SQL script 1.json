@@ -1,0 +1,17 @@
+{
+	"name": "SQL script 1",
+	"properties": {
+		"content": {
+			"query": "SELECT TOP (100) [CustomerID]\n,[LastName]\n,[FirstName]\n,[PhoneNumber]\n,[CreatedDate]\n,[UpdatedDate]\n FROM [stg].[cloud_sales_customers]",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "silver_stg",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}
