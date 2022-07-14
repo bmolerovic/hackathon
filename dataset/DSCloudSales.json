@@ -1,0 +1,13 @@
+{
+	"name": "DSCloudSales",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "LSCloudSales",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": []
+	},
+	"type": "Microsoft.Synapse/workspaces/datasets"
+}

@@ -1,0 +1,21 @@
+{
+	"name": "DSConvertCoffeFiles",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "asateam1-WorkspaceDefaultStorage",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Parquet",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"folderPath": "FourthCoffee/CoffeConvertFiles",
+				"fileSystem": "bronze"
+			},
+			"compressionCodec": "gzip"
+		},
+		"schema": []
+	},
+	"type": "Microsoft.Synapse/workspaces/datasets"
+}

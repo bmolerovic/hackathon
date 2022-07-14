@@ -1,0 +1,24 @@
+{
+	"name": "DestinationDataset_u2c",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "asateam1-WorkspaceDefaultStorage",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Parquet",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"folderPath": "movies",
+				"fileSystem": "bronze"
+			},
+			"compressionCodec": "gzip",
+			"columnDelimiter": ",",
+			"escapeChar": "\\",
+			"quoteChar": "\""
+		},
+		"schema": []
+	},
+	"type": "Microsoft.Synapse/workspaces/datasets"
+}

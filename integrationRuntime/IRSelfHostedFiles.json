@@ -1,0 +1,6 @@
+{
+	"name": "IRSelfHostedFiles",
+	"properties": {
+		"type": "SelfHosted"
+	}
+}
