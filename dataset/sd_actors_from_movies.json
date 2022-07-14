@@ -1,0 +1,20 @@
+{
+	"name": "sd_actors_from_movies",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "asateam1-WorkspaceDefaultStorage",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Parquet",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"folderPath": "actors",
+				"fileSystem": "bronze"
+			},
+			"compressionCodec": "snappy"
+		},
+		"schema": []
+	}
+}
