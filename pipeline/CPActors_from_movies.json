@@ -1,0 +1,67 @@
+{
+	"name": "CPActors_from_movies",
+	"properties": {
+		"activities": [
+			{
+				"name": "Copy_u2c",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [
+					{
+						"name": "Source",
+						"value": "movies"
+					},
+					{
+						"name": "Destination",
+						"value": "bronze/movies/"
+					}
+				],
+				"typeProperties": {
+					"source": {
+						"type": "CosmosDbSqlApiSource",
+						"preferredRegions": []
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"path": "['name']"
+								},
+								"sink": {
+									"name": "name"
+								}
+							},
+							{
+								"source": {
+									"path": "$['title']"
+								},
+								"sink": {
+									"name": "title"
+								}
+							}
+						],
+						"collectionReference": "$['actors']"
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "SourceDataset_u2c",
+						"type": "DatasetReference"
+					}
+				]
+			}
+		],
+		"annotations": [],
+		"lastPublishTime": "2022-07-13T10:49:29Z"
+	},
+	"type": "Microsoft.Synapse/workspaces/pipelines"
+}
