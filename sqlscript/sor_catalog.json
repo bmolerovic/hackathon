@@ -1,0 +1,17 @@
+{
+	"name": "sor_catalog",
+	"properties": {
+		"content": {
+			"query": "IF NOT EXISTS (SELECT * FROM sys.external_file_formats WHERE name = 'SynapseParquetFormat') \n\tCREATE EXTERNAL FILE FORMAT [SynapseParquetFormat] \n\tWITH ( FORMAT_TYPE = PARQUET)\nGO\n\nIF NOT EXISTS (SELECT * FROM sys.external_data_sources WHERE name = 'silver_sadlteam1gen2_dfs_core_windows_net') \n\tCREATE EXTERNAL DATA SOURCE [silver_sadlteam1gen2_dfs_core_windows_net] \n\tWITH (\n\t\tLOCATION = 'abfss://silver@sadlteam1gen2.dfs.core.windows.net' \n\t)\nGO\n\ncreate  EXTERNAL TABLE sor.Catalog \n \t\n\tWITH (\n\tLOCATION = 'Catalog.parquet',\n\tDATA_SOURCE = [silver_sadlteam1gen2_dfs_core_windows_net],\n\tFILE_FORMAT = [SynapseParquetFormat]\n\t)\nas \t\n select \n2 as SourceID,\n'UUID'  as CatalogID,\nb.ActorID,\na.name as Actor,\n a.availabilitydate  as ReleaseDate,\na.Genre,\na.Rating,\ncast(ReleaseYear as int) as  AvailabilityYear,\na.StreamingAvailabilityDate as AvailabilityDate,\na.Tier  as MovieTier,\na.Title as MovieTitle,\nc.MovieID\n\n\n from stg.movies_cosmosdb a\n left join stg.va_actors b on a.name=b.actorname \n left join stg.va_movies  c on a.title=c.movietitle;\n ;\n ",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "silver_stg",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}
