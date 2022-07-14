@@ -1,0 +1,17 @@
+{
+	"name": "SQL script 3",
+	"properties": {
+		"content": {
+			"query": "select \n1 as SourceID,\n'UUID'  as CatalogID,\nnewid() ActorID,\nc.name as Actor,\n a.availabilitydate  as ReleaseDate,\na.Genre,\na.Rating,\ncast(ReleaseYear as int) as  AvailabilityYear,\na.StreamingAvailabilityDate as AvailabilityDate,\na.Tier  as MovieTier,\na.Title as MovieTitle,\nnewid() over( PARTITION by a.title order by a.title )\n select * \n from stg.movies_cosmosdb a\njoin stg.cosmos_actors c on a.Title=c.Title \nwhere a.title='Adventure Brick'\n ;\n\n ",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "silver_stg",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

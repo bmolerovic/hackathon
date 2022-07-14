@@ -26,6 +26,15 @@
 				"typeProperties": {
 					"source": {
 						"type": "CosmosDbSqlApiSource",
+						"additionalColumns": [
+							{
+								"name": "Movie_id",
+								"value": {
+									"value": "@guid()",
+									"type": "Expression"
+								}
+							}
+						],
 						"preferredRegions": []
 					},
 					"sink": {

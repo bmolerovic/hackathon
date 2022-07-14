@@ -1,0 +1,17 @@
+{
+	"name": "SQL script 4",
+	"properties": {
+		"content": {
+			"query": "SELECT TOP (100) [name]\n,[availabilityDate]\n,[genre]\n,[rating]\n,[releaseYear]\n,[runtime]\n,[streamingAvailabilityDate]\n,[tier]\n,[title]\n,[id]\n,[_rid]\n,[_self]\n,[_etag]\n,[_attachments]\n,[_ts]\n FROM [stg].[movies_CosmosDB]",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "silver_stg",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

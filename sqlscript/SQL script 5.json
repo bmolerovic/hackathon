@@ -1,0 +1,17 @@
+{
+	"name": "SQL script 5",
+	"properties": {
+		"content": {
+			"query": "IF NOT EXISTS (SELECT * FROM sys.external_file_formats WHERE name = 'SynapseParquetFormat') \n\tCREATE EXTERNAL FILE FORMAT [SynapseParquetFormat] \n\tWITH ( FORMAT_TYPE = PARQUET)\nGO\n\nIF NOT EXISTS (SELECT * FROM sys.external_data_sources WHERE name = 'bronze_sadlteam1gen2_dfs_core_windows_net') \n\tCREATE EXTERNAL DATA SOURCE [bronze_sadlteam1gen2_dfs_core_windows_net] \n\tWITH (\n\t\tLOCATION = 'abfss://bronze@sadlteam1gen2.dfs.core.windows.net' \n\t)\nGO\n\nCREATE EXTERNAL TABLE stg.cosmos_movies (\n\t[name] nvarchar(4000),\n\t[availabilityDate] nvarchar(4000),\n\t[genre] nvarchar(4000),\n\t[rating] nvarchar(4000),\n\t[releaseYear] bigint,\n\t[runtime] bigint,\n\t[streamingAvailabilityDate] nvarchar(4000),\n\t[tier] bigint,\n\t[title] nvarchar(4000),\n\t[id] nvarchar(4000),\n\t[_rid] nvarchar(4000),\n\t[_self] nvarchar(4000),\n\t[_etag] nvarchar(4000),\n\t[_attachments] nvarchar(4000),\n\t[_ts] bigint\n\t)\n\tWITH (\n\tLOCATION = 'movies/data_51deafb2-b1f7-4c3e-be9d-324c7f4ddbd8_5f958cc0-9864-4293-861d-de03b0a9a251.parquet',\n\tDATA_SOURCE = [bronze_sadlteam1gen2_dfs_core_windows_net],\n\tFILE_FORMAT = [SynapseParquetFormat]\n\t)\nGO\n\n\nSELECT TOP 100 * FROM stg.cosmos_movies\nGO",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "silver_stg",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}
