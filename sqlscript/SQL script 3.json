@@ -1,0 +1,17 @@
+{
+	"name": "SQL script 3",
+	"properties": {
+		"content": {
+			"query": "IF NOT EXISTS (SELECT * FROM sys.external_file_formats WHERE name = 'SynapseParquetFormat') \n\tCREATE EXTERNAL FILE FORMAT [SynapseParquetFormat] \n\tWITH ( FORMAT_TYPE = PARQUET)\nGO\n\nIF NOT EXISTS (SELECT * FROM sys.external_data_sources WHERE name = 'bronze_sadlteam1gen2_dfs_core_windows_net') \n\tCREATE EXTERNAL DATA SOURCE [bronze_sadlteam1gen2_dfs_core_windows_net] \n\tWITH (\n\t\tLOCATION = 'abfss://bronze@sadlteam1gen2.dfs.core.windows.net' \n\t)\nGO\n\nCREATE EXTERNAL TABLE stg.stream_customersStream (\n\t[CustomerID] nvarchar(4000),\n\t[LastName] nvarchar(4000),\n\t[FirstName] nvarchar(4000),\n\t[PhoneNumber] nvarchar(4000),\n\t[CreatedDate] date,\n\t[UpdatedDate] date\n\t)\n\tWITH (\n\tLOCATION = 'CloudStreaming/CustomersStream.txt',\n\tDATA_SOURCE = [bronze_sadlteam1gen2_dfs_core_windows_net],\n\tFILE_FORMAT = [SynapseParquetFormat]\n\t)\nGO\n\n\nSELECT TOP 100 * FROM stg.stream_customersStream\nGO",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "silver_stg",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}
