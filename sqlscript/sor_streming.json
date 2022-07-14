@@ -1,0 +1,17 @@
+{
+	"name": "sor_streming",
+	"properties": {
+		"content": {
+			"query": "IF NOT EXISTS (SELECT * FROM sys.external_file_formats WHERE name = 'SynapseParquetFormat') \n\tCREATE EXTERNAL FILE FORMAT [SynapseParquetFormat] \n\tWITH ( FORMAT_TYPE = PARQUET)\nGO\n\nIF NOT EXISTS (SELECT * FROM sys.external_data_sources WHERE name = 'silver_sadlteam1gen2_dfs_core_windows_net') \n\tCREATE EXTERNAL DATA SOURCE [silver_sadlteam1gen2_dfs_core_windows_net] \n\tWITH (\n\t\tLOCATION = 'abfss://silver@sadlteam1gen2.dfs.core.windows.net' \n\t)\nGO\n\n\ncreate  EXTERNAL TABLE sor.Streaming \n \t\n\tWITH (\n\tLOCATION = 'Streaming.parquet',\n\tDATA_SOURCE = [silver_sadlteam1gen2_dfs_core_windows_net],\n\tFILE_FORMAT = [SynapseParquetFormat]\n\t)\nAS \t\nSELECT\n1 AS SourceID,\nCONCAT(1, a.TransactionID) AS UniqueOrderID,\na.TransactionID AS TransactionID,\nCONCAT(1, a.MovieID)  AS UniqueMovieID,\na.MovieID AS MovieID,\na.CustomerID AS CustomerID,\nCONCAT(1, a.CustomerID)  AS UniqueCustomerID,\na.StreamStart AS StreamStart,\na.StreamEnd AS StreamEnd\nFROM\nstg.stream_TransactionsStream a\n\n",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "silver_stg",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}
