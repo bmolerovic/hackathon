@@ -35,6 +35,14 @@
 			"type": "secureString",
 			"metadata": "Secure string for 'accountKey' of 'ls_pom'"
 		},
+		"ls_sql_pool_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'ls_sql_pool'"
+		},
+		"testSynapse_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'testSynapse'"
+		},
 		"LSCoffeFiles_properties_typeProperties_host": {
 			"type": "string",
 			"defaultValue": "C:\\"
@@ -56,6 +64,99 @@
 		"workspaceId": "[concat('Microsoft.Synapse/workspaces/', parameters('workspaceName'))]"
 	},
 	"resources": [
+		{
+			"name": "[concat(parameters('workspaceName'), '/CPActors_from_movies')]",
+			"type": "Microsoft.Synapse/workspaces/pipelines",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"activities": [
+					{
+						"name": "Copy_u2c",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [
+							{
+								"name": "Source",
+								"value": "movies"
+							},
+							{
+								"name": "Destination",
+								"value": "bronze/movies/"
+							}
+						],
+						"typeProperties": {
+							"source": {
+								"type": "CosmosDbSqlApiSource",
+								"preferredRegions": []
+							},
+							"sink": {
+								"type": "ParquetSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings"
+								},
+								"formatSettings": {
+									"type": "ParquetWriteSettings"
+								}
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"path": "['name']"
+										},
+										"sink": {
+											"name": "name"
+										}
+									},
+									{
+										"source": {
+											"path": "$['title']"
+										},
+										"sink": {
+											"name": "title"
+										}
+									}
+								],
+								"collectionReference": "$['actors']"
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "SourceDataset_u2c",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "sd_actors_from_movies",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"annotations": [],
+				"lastPublishTime": "2022-07-13T10:49:29Z"
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/datasets/SourceDataset_u2c')]",
+				"[concat(variables('workspaceId'), '/datasets/sd_actors_from_movies')]"
+			]
+		},
 		{
 			"name": "[concat(parameters('workspaceName'), '/CPCloudSales')]",
 			"type": "Microsoft.Synapse/workspaces/pipelines",
@@ -498,6 +599,15 @@
 						"typeProperties": {
 							"source": {
 								"type": "CosmosDbSqlApiSource",
+								"additionalColumns": [
+									{
+										"name": "Movie_id",
+										"value": {
+											"value": "@guid()",
+											"type": "Expression"
+										}
+									}
+								],
 								"preferredRegions": []
 							},
 							"sink": {
@@ -1392,6 +1502,32 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('workspaceName'), '/sd_actors_from_movies')]",
+			"type": "Microsoft.Synapse/workspaces/datasets",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "asateam1-WorkspaceDefaultStorage",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "Parquet",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "actors",
+						"folderPath": "actors",
+						"fileSystem": "bronze"
+					},
+					"compressionCodec": "snappy"
+				},
+				"schema": []
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/linkedServices/asateam1-WorkspaceDefaultStorage')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('workspaceName'), '/DSCloudStream')]",
 			"type": "Microsoft.Synapse/workspaces/linkedServices",
 			"apiVersion": "2019-06-01-preview",
@@ -1558,6 +1694,44 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('workspaceName'), '/ls_sql_pool')]",
+			"type": "Microsoft.Synapse/workspaces/linkedServices",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"annotations": [],
+				"type": "AzureSqlDW",
+				"typeProperties": {
+					"connectionString": "[parameters('ls_sql_pool_connectionString')]"
+				},
+				"connectVia": {
+					"referenceName": "AutoResolveIntegrationRuntime",
+					"type": "IntegrationRuntimeReference"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/integrationRuntimes/AutoResolveIntegrationRuntime')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/testSynapse')]",
+			"type": "Microsoft.Synapse/workspaces/linkedServices",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"annotations": [],
+				"type": "AzureSqlDW",
+				"typeProperties": {
+					"connectionString": "[parameters('testSynapse_connectionString')]"
+				},
+				"connectVia": {
+					"referenceName": "AutoResolveIntegrationRuntime",
+					"type": "IntegrationRuntimeReference"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/integrationRuntimes/AutoResolveIntegrationRuntime')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('workspaceName'), '/AutoResolveIntegrationRuntime')]",
 			"type": "Microsoft.Synapse/workspaces/integrationRuntimes",
 			"apiVersion": "2019-06-01-preview",
@@ -1605,6 +1779,302 @@
 				"typeProperties": {}
 			},
 			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/SQL script 6')]",
+			"type": "Microsoft.Synapse/workspaces/sqlscripts",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"content": {
+					"query": "IF NOT EXISTS (SELECT * FROM sys.external_file_formats WHERE name = 'SynapseParquetFormat') \n\tCREATE EXTERNAL FILE FORMAT [SynapseParquetFormat] \n\tWITH ( FORMAT_TYPE = PARQUET)\nGO\n\nIF NOT EXISTS (SELECT * FROM sys.external_data_sources WHERE name = 'bronze_sadlteam1gen2_dfs_core_windows_net') \n\tCREATE EXTERNAL DATA SOURCE [bronze_sadlteam1gen2_dfs_core_windows_net] \n\tWITH (\n\t\tLOCATION = 'abfss://bronze@sadlteam1gen2.dfs.core.windows.net' \n\t)\nGO\n\ndrop EXTERNAL TABLE stg.Cosmos_Actors;\n\nCREATE EXTERNAL TABLE stg.Cosmos_Actors (\n\t[name] nvarchar(4000),\n\t[title] nvarchar(4000)\n\t)\n\tWITH (\n\tLOCATION = 'actors/**',\n\tDATA_SOURCE = [bronze_sadlteam1gen2_dfs_core_windows_net],\n\tFILE_FORMAT = [SynapseParquetFormat]\n\t)\nGO\n\n\nSELECT TOP 100 * FROM stg.Cosmos_Actors\nGO",
+					"metadata": {
+						"language": "sql"
+					},
+					"currentConnection": {
+						"databaseName": "silver_stg",
+						"poolName": "Built-in"
+					},
+					"resultLimit": 5000
+				},
+				"type": "SqlQuery"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/sor_address')]",
+			"type": "Microsoft.Synapse/workspaces/sqlscripts",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"content": {
+					"query": "IF NOT EXISTS (SELECT * FROM sys.external_file_formats WHERE name = 'SynapseParquetFormat') \n\tCREATE EXTERNAL FILE FORMAT [SynapseParquetFormat] \n\tWITH ( FORMAT_TYPE = PARQUET)\nGO\n\nIF NOT EXISTS (SELECT * FROM sys.external_data_sources WHERE name = 'silver_sadlteam1gen2_dfs_core_windows_net') \n\tCREATE EXTERNAL DATA SOURCE [silver_sadlteam1gen2_dfs_core_windows_net] \n\tWITH (\n\t\tLOCATION = 'abfss://silver@sadlteam1gen2.dfs.core.windows.net' \n\t)\nGO\n\ncreate  EXTERNAL TABLE sor.Address \n \t\n\tWITH (\n\tLOCATION = 'Address.parquet',\n\tDATA_SOURCE = [silver_sadlteam1gen2_dfs_core_windows_net],\n\tFILE_FORMAT = [SynapseParquetFormat]\n\t)\nas \t\nselect \nAddressID,\nCustomerID,\nAddressLine1,\nAddressLine2,\nCity,\nState,\nZipCode,\nCreatedDate,\nUpdatedDate,\n1 as SourceID,\n'1'+CustomerID+AddressID UniqueID\nfrom stg.cloud_sales_addresses\nunion ALL\nselect \nnull as AddressID,\nCustomerID,\nAddressLine1,\nAddressLine2,\nCity,\nState,\nZipCode,\nCreatedDate,\nUpdatedDate,\n2 as SourceID,\n'2'+CustomerID as UniqueID\nfrom stg.va_customers\n ;\n ",
+					"metadata": {
+						"language": "sql"
+					},
+					"currentConnection": {
+						"databaseName": "silver_stg",
+						"poolName": "Built-in"
+					},
+					"resultLimit": 5000
+				},
+				"type": "SqlQuery"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/sor_catalog')]",
+			"type": "Microsoft.Synapse/workspaces/sqlscripts",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"content": {
+					"query": "IF NOT EXISTS (SELECT * FROM sys.external_file_formats WHERE name = 'SynapseParquetFormat') \n\tCREATE EXTERNAL FILE FORMAT [SynapseParquetFormat] \n\tWITH ( FORMAT_TYPE = PARQUET)\nGO\n\nIF NOT EXISTS (SELECT * FROM sys.external_data_sources WHERE name = 'silver_sadlteam1gen2_dfs_core_windows_net') \n\tCREATE EXTERNAL DATA SOURCE [silver_sadlteam1gen2_dfs_core_windows_net] \n\tWITH (\n\t\tLOCATION = 'abfss://silver@sadlteam1gen2.dfs.core.windows.net' \n\t)\nGO\n\ncreate  EXTERNAL TABLE sor.Catalog \n \t\n\tWITH (\n\tLOCATION = 'Catalog.parquet',\n\tDATA_SOURCE = [silver_sadlteam1gen2_dfs_core_windows_net],\n\tFILE_FORMAT = [SynapseParquetFormat]\n\t)\nas \t\nselect \n 1 as SourceID,\n'UUID'  as CatalogID,\nc.ActorID,\nc.name as Actor,\n a.availabilitydate  as ReleaseDate,\na.Genre,\na.Rating,\ncast(ReleaseYear as int) as  AvailabilityYear,\na.StreamingAvailabilityDate as AvailabilityDate,\na.Tier  as MovieTier, \na.Title as MovieTitle, \nb.MovieID\n \n from stg.movies_cosmosdb a\n join (select ROW_NUMBER() over (order by title)  MovieID , title \n        from stg.movies_cosmosdb\n        )  b on a.title=b.title\n join (\n     select name, title, DENSE_RANK() over(order by name) as ActorID\n  from stg.Cosmos_Actors\n   \n  )   c on c.title=a.title\n ",
+					"metadata": {
+						"language": "sql"
+					},
+					"currentConnection": {
+						"databaseName": "silver_stg",
+						"poolName": "Built-in"
+					},
+					"resultLimit": 5000
+				},
+				"type": "SqlQuery"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/sor_customer')]",
+			"type": "Microsoft.Synapse/workspaces/sqlscripts",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"content": {
+					"query": "IF NOT EXISTS (SELECT * FROM sys.external_file_formats WHERE name = 'SynapseParquetFormat') \n\tCREATE EXTERNAL FILE FORMAT [SynapseParquetFormat] \n\tWITH ( FORMAT_TYPE = PARQUET)\nGO\n\nIF NOT EXISTS (SELECT * FROM sys.external_data_sources WHERE name = 'silver_sadlteam1gen2_dfs_core_windows_net') \n\tCREATE EXTERNAL DATA SOURCE [silver_sadlteam1gen2_dfs_core_windows_net] \n\tWITH (\n\t\tLOCATION = 'abfss://silver@sadlteam1gen2.dfs.core.windows.net' \n\t)\nGO\n\ncreate  EXTERNAL TABLE sor.Customer \n \t\n\tWITH (\n\tLOCATION = 'Customer.parquet',\n\tDATA_SOURCE = [silver_sadlteam1gen2_dfs_core_windows_net],\n\tFILE_FORMAT = [SynapseParquetFormat]\n\t)\nas \t\n select \nCustomerID,\nLastName,\nFirstName,\nPhoneNumber,\nCreatedDate,\nUpdatedDate,\n1 SourceID,\n'1'+CustomerID  UniqueID\n\nfrom stg.cloud_sales_customers\nunion ALL\n select \nCustomerID,\nLastName,\nFirstName,\nPhoneNumber,\nCreatedDate,\nUpdatedDate,\n2 SourceID,\n'2'+CustomerID  UniqueID\nfrom stg.va_customers\n ;\n ",
+					"metadata": {
+						"language": "sql"
+					},
+					"currentConnection": {
+						"databaseName": "silver_stg",
+						"poolName": "Built-in"
+					},
+					"resultLimit": 5000
+				},
+				"type": "SqlQuery"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/sor_dvd_sales')]",
+			"type": "Microsoft.Synapse/workspaces/sqlscripts",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"content": {
+					"query": "IF NOT EXISTS (SELECT * FROM sys.external_file_formats WHERE name = 'SynapseParquetFormat') \n\tCREATE EXTERNAL FILE FORMAT [SynapseParquetFormat] \n\tWITH ( FORMAT_TYPE = PARQUET)\nGO\n\nIF NOT EXISTS (SELECT * FROM sys.external_data_sources WHERE name = 'silver_sadlteam1gen2_dfs_core_windows_net') \n\tCREATE EXTERNAL DATA SOURCE [silver_sadlteam1gen2_dfs_core_windows_net] \n\tWITH (\n\t\tLOCATION = 'abfss://silver@sadlteam1gen2.dfs.core.windows.net' \n\t)\nGO\n\ncreate  EXTERNAL TABLE sor.DVDSales \n \t\n\tWITH (\n\tLOCATION = 'DVDSales.parquet',\n\tDATA_SOURCE = [silver_sadlteam1gen2_dfs_core_windows_net],\n\tFILE_FORMAT = [SynapseParquetFormat]\n\t)\nAS \t\n\n\nSELECT \n1 AS SourceID,\nCONCAT(1, b.OrderDetailID) AS UniqueOrderID,\nb.OrderID AS OrderID,\nb.OrderDetailID AS OrderDetailID,\nCONCAT(1, b.MovieID) AS UniqueMovieID,\nb.MovieID AS MovieID,\nb.Quantity AS Quantity,\nb.UnitCost AS UnitCost,\nb.LineNumber AS LineNumber,\nc.CustomerID AS CustomerID,\n\nCONCAT(1, b.MovieID) AS UniqueCustomerID,\nc.OrderDate AS OrderDate,\nc.ShipDate AS ShipDate,\nc.TotalCost AS TotalCost\nFROM\n\nstg.cloud_sales_orderDetails b\nleft join \nstg.cloud_sales_orders c\non b.OrderID = c.OrderID\n\n ;\n ",
+					"metadata": {
+						"language": "sql"
+					},
+					"currentConnection": {
+						"databaseName": "silver_stg",
+						"poolName": "Built-in"
+					},
+					"resultLimit": 5000
+				},
+				"type": "SqlQuery"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/sor_rentals')]",
+			"type": "Microsoft.Synapse/workspaces/sqlscripts",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"content": {
+					"query": "IF NOT EXISTS (SELECT * FROM sys.external_file_formats WHERE name = 'SynapseParquetFormat') \n\tCREATE EXTERNAL FILE FORMAT [SynapseParquetFormat] \n\tWITH ( FORMAT_TYPE = PARQUET)\nGO\n\nIF NOT EXISTS (SELECT * FROM sys.external_data_sources WHERE name = 'silver_sadlteam1gen2_dfs_core_windows_net') \n\tCREATE EXTERNAL DATA SOURCE [silver_sadlteam1gen2_dfs_core_windows_net] \n\tWITH (\n\t\tLOCATION = 'abfss://silver@sadlteam1gen2.dfs.core.windows.net' \n\t)\nGO\n\n\n\ncreate  EXTERNAL TABLE sor.Rentals \n \t\n\tWITH (\n\tLOCATION = 'Rentals.parquet',\n\tDATA_SOURCE = [silver_sadlteam1gen2_dfs_core_windows_net],\n\tFILE_FORMAT = [SynapseParquetFormat]\n\t)\nAS \t\n\nSELECT\n2 AS SourceID,\nCONCAT(2, a.TransactionID) AS UniqueTransactionID,\na.TransactionID AS TransactionID,\nCONCAT(2, a.CustomerID) AS UniqueCustomerID,\na.CustomerID AS CustomerID,\nCONCAT(2, a.MovieID) AS UniqueMovieID,\na.MovieID AS MovieID,\nCONVERT(DATETIME, CONVERT(CHAR(8), a.RentalDate)) AS RentalDate,\nCONVERT(DATETIME, CONVERT(CHAR(8), a.ReturnDate)) AS ReturnDate,\nCAST(a.RentalCost AS FLOAT) AS RentalCost,\nCAST(a.LateFee AS FLOAT) AS LateFee,\nCAST(a.RewindFlag AS BIT) AS RewindFlag,\na.CreatedDate as CreatedDate,\na.UpdatedDate as UpdatedDate\nFROM\nstg.va_transactions a \n\n",
+					"metadata": {
+						"language": "sql"
+					},
+					"currentConnection": {
+						"databaseName": "silver_stg",
+						"poolName": "Built-in"
+					},
+					"resultLimit": 5000
+				},
+				"type": "SqlQuery"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/sor_streming')]",
+			"type": "Microsoft.Synapse/workspaces/sqlscripts",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"content": {
+					"query": "IF NOT EXISTS (SELECT * FROM sys.external_file_formats WHERE name = 'SynapseParquetFormat') \n\tCREATE EXTERNAL FILE FORMAT [SynapseParquetFormat] \n\tWITH ( FORMAT_TYPE = PARQUET)\nGO\n\nIF NOT EXISTS (SELECT * FROM sys.external_data_sources WHERE name = 'silver_sadlteam1gen2_dfs_core_windows_net') \n\tCREATE EXTERNAL DATA SOURCE [silver_sadlteam1gen2_dfs_core_windows_net] \n\tWITH (\n\t\tLOCATION = 'abfss://silver@sadlteam1gen2.dfs.core.windows.net' \n\t)\nGO\n\n\ncreate  EXTERNAL TABLE sor.Streaming \n \t\n\tWITH (\n\tLOCATION = 'Streaming.parquet',\n\tDATA_SOURCE = [silver_sadlteam1gen2_dfs_core_windows_net],\n\tFILE_FORMAT = [SynapseParquetFormat]\n\t)\nAS \t\nSELECT\n1 AS SourceID,\nCONCAT(1, a.TransactionID) AS UniqueOrderID,\na.TransactionID AS TransactionID,\nCONCAT(1, a.MovieID)  AS UniqueMovieID,\na.MovieID AS MovieID,\na.CustomerID AS CustomerID,\nCONCAT(1, a.CustomerID)  AS UniqueCustomerID,\na.StreamStart AS StreamStart,\na.StreamEnd AS StreamEnd\nFROM\nstg.stream_TransactionsStream a\n\n",
+					"metadata": {
+						"language": "sql"
+					},
+					"currentConnection": {
+						"databaseName": "silver_stg",
+						"poolName": "Built-in"
+					},
+					"resultLimit": 5000
+				},
+				"type": "SqlQuery"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/nb_import_actors')]",
+			"type": "Microsoft.Synapse/workspaces/notebooks",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"nbformat": 4,
+				"nbformat_minor": 2,
+				"bigDataPool": {
+					"referenceName": "spworking",
+					"type": "BigDataPoolReference"
+				},
+				"sessionProperties": {
+					"driverMemory": "28g",
+					"driverCores": 4,
+					"executorMemory": "28g",
+					"executorCores": 4,
+					"numExecutors": 2,
+					"conf": {
+						"spark.dynamicAllocation.enabled": "false",
+						"spark.dynamicAllocation.minExecutors": "2",
+						"spark.dynamicAllocation.maxExecutors": "2",
+						"spark.autotune.trackingId": "043ffcdc-1d59-460a-96da-e17eeca525a2"
+					}
+				},
+				"metadata": {
+					"saveOutput": true,
+					"enableDebugMode": false,
+					"kernelspec": {
+						"name": "synapse_pyspark",
+						"display_name": "Synapse PySpark"
+					},
+					"language_info": {
+						"name": "python"
+					},
+					"a365ComputeOptions": {
+						"id": "/subscriptions/e8df41ef-dc98-4e75-802c-d0f7bc1433b7/resourceGroups/mdw-oh-01-eastus/providers/Microsoft.Synapse/workspaces/asateam1/bigDataPools/spworking",
+						"name": "spworking",
+						"type": "Spark",
+						"endpoint": "https://asateam1.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/spworking",
+						"auth": {
+							"type": "AAD",
+							"authResource": "https://dev.azuresynapse.net"
+						},
+						"sparkVersion": "3.2",
+						"nodeCount": 10,
+						"cores": 4,
+						"memory": 28
+					},
+					"sessionKeepAliveTimeout": 30
+				},
+				"cells": [
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							},
+							"microsoft": {
+								"language": "python"
+							}
+						},
+						"source": [
+							"%%pyspark\r\n",
+							"from pyspark.sql import SparkSession\r\n",
+							"import uuid\r\n",
+							"from pyspark.sql.types import *\r\n",
+							"account_name = \"sadlteam1gen2\"\r\n",
+							"container_name = \"bronze\"\r\n",
+							"relative_path = \"/actors\"\r\n",
+							"adls_path = 'abfss://%s@%s.dfs.core.windows.net/%s' % (container_name, account_name, relative_path)\r\n",
+							"\r\n",
+							"df1 = spark.read.parquet(adls_path + '/actors')\r\n",
+							"df1.show(5)"
+						],
+						"outputs": [],
+						"execution_count": 11
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"df1.withColumn(\"id\", col=\"mladen\")\r\n",
+							"df1.createOrReplaceTempView(\"temp_Actors\")"
+						],
+						"outputs": [],
+						"execution_count": 14
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							},
+							"microsoft": {
+								"language": "sparksql"
+							},
+							"collapsed": false
+						},
+						"source": [
+							"%%sql\r\n",
+							"select DISTINCT name from temp_Actors "
+						],
+						"outputs": [],
+						"execution_count": 6
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/spworking')]",
+			"type": "Microsoft.Synapse/workspaces/bigDataPools",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"autoPause": {
+					"enabled": true,
+					"delayInMinutes": 15
+				},
+				"autoScale": {
+					"enabled": true,
+					"maxNodeCount": 10,
+					"minNodeCount": 3
+				},
+				"nodeCount": 10,
+				"nodeSize": "Small",
+				"nodeSizeFamily": "MemoryOptimized",
+				"sparkVersion": "3.2",
+				"isComputeIsolationEnabled": false,
+				"sessionLevelPackagesEnabled": false,
+				"annotations": []
+			},
+			"dependsOn": [],
+			"location": "eastus"
 		}
 	]
 }

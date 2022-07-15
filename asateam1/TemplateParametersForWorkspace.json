@@ -26,6 +26,12 @@
 		"ls_pom_accountKey": {
 			"value": ""
 		},
+		"ls_sql_pool_connectionString": {
+			"value": ""
+		},
+		"testSynapse_connectionString": {
+			"value": ""
+		},
 		"LSCoffeFiles_properties_typeProperties_host": {
 			"value": "C:\\"
 		},
