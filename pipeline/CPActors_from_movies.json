@@ -28,6 +28,15 @@
 						"type": "CosmosDbSqlApiSource",
 						"preferredRegions": []
 					},
+					"sink": {
+						"type": "ParquetSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "ParquetWriteSettings"
+						}
+					},
 					"enableStaging": false,
 					"translator": {
 						"type": "TabularTranslator",
@@ -55,6 +64,12 @@
 				"inputs": [
 					{
 						"referenceName": "SourceDataset_u2c",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "sd_actors_from_movies",
 						"type": "DatasetReference"
 					}
 				]
