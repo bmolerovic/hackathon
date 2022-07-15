@@ -4,7 +4,7 @@
 		"nbformat": 4,
 		"nbformat_minor": 2,
 		"bigDataPool": {
-			"referenceName": "splana",
+			"referenceName": "spworking",
 			"type": "BigDataPoolReference"
 		},
 		"sessionProperties": {
@@ -17,7 +17,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "81c00b25-5dba-46e8-b89f-7d799714b396"
+				"spark.autotune.trackingId": "7c525b0e-e8a4-4edd-ac66-a0d0d2bc2170"
 			}
 		},
 		"metadata": {
@@ -31,10 +31,10 @@
 				"name": "python"
 			},
 			"a365ComputeOptions": {
-				"id": "/subscriptions/e8df41ef-dc98-4e75-802c-d0f7bc1433b7/resourceGroups/mdw-oh-01-eastus/providers/Microsoft.Synapse/workspaces/asateam1/bigDataPools/splana",
-				"name": "splana",
+				"id": "/subscriptions/e8df41ef-dc98-4e75-802c-d0f7bc1433b7/resourceGroups/mdw-oh-01-eastus/providers/Microsoft.Synapse/workspaces/asateam1/bigDataPools/spworking",
+				"name": "spworking",
 				"type": "Spark",
-				"endpoint": "https://asateam1.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/splana",
+				"endpoint": "https://asateam1.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/spworking",
 				"auth": {
 					"type": "AAD",
 					"authResource": "https://dev.azuresynapse.net"
@@ -68,7 +68,7 @@
 					"df1 = spark.read.parquet(adls_path )\r\n",
 					"df1.show(5)"
 				],
-				"execution_count": 1
+				"execution_count": 2
 			},
 			{
 				"cell_type": "code",
