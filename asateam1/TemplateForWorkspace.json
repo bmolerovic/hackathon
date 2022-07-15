@@ -1941,7 +1941,7 @@
 						"spark.dynamicAllocation.enabled": "false",
 						"spark.dynamicAllocation.minExecutors": "2",
 						"spark.dynamicAllocation.maxExecutors": "2",
-						"spark.autotune.trackingId": "49605946-c49f-4d3d-b371-b56e4cfcb206"
+						"spark.autotune.trackingId": "9a50b5da-1fe7-4623-a16c-32e03fafd888"
 					}
 				},
 				"metadata": {
@@ -2003,7 +2003,7 @@
 							""
 						],
 						"outputs": [],
-						"execution_count": 2
+						"execution_count": 28
 					},
 					{
 						"cell_type": "code",
@@ -2019,18 +2019,25 @@
 							}
 						},
 						"source": [
-							"from pyspark.sql.functions import lit\r\n",
+							"#from pyspark.sql.functions import lit\r\n",
+							"from pyspark.sql.functions import *\r\n",
+							"\r\n",
+							"\r\n",
 							"catalog = df1\r\n",
 							"catalog1=catalog.withColumn('ActorsSK', catalog['ActorID'])\r\n",
 							"catalog2=catalog1.withColumn('Gender',lit('F/M'))\r\n",
 							"\r\n",
 							"DimActors = catalog2.select([c for c in catalog2.columns if c in ['ActorsSK', 'ActorID', 'Actor', 'Gender']])\r\n",
 							"#actors.show(5)\r\n",
+							" \r\n",
+							"catalog3=catalog2.withColumn('MovieCategoryDescription', catalog2['Genre'])\r\n",
+							"DimCategories=catalog3.select(['MovieCategoryDescription']).distinct()\r\n",
+							"DimCategories = DimCategories.withColumn('MovieCategorySK', monotonically_increasing_id());\r\n",
 							"\r\n",
-							""
+							"DimCategories.show()"
 						],
 						"outputs": [],
-						"execution_count": 23
+						"execution_count": 38
 					},
 					{
 						"cell_type": "code",
@@ -2053,12 +2060,31 @@
 							"%%pyspark\r\n",
 							"import pyspark.sql\r\n",
 							"destination = \"abfss://gold@sadlteam1gen2.dfs.core.windows.net/\"\r\n",
-							"#temp = spark.sql(\"select DISTINCT MovieTitle, MovieID as MovieSK from temp_Catalog\")\r\n",
 							"DimActors.write.format('parquet').mode('overwrite').save(destination + '/DimActors')\r\n",
+							"DimCategories.write.format('parquet').mode('overwrite').save(destination + '/DimCategories')\r\n",
 							""
 						],
 						"outputs": [],
-						"execution_count": 24
+						"execution_count": 39
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							""
+						],
+						"outputs": [],
+						"execution_count": null
 					}
 				]
 			},
@@ -2244,6 +2270,33 @@
 			},
 			"dependsOn": [],
 			"location": "eastus"
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/splana')]",
+			"type": "Microsoft.Synapse/workspaces/bigDataPools",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"annotations": []
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/spmilosavljevic')]",
+			"type": "Microsoft.Synapse/workspaces/bigDataPools",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"annotations": []
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/spnikolamatic')]",
+			"type": "Microsoft.Synapse/workspaces/bigDataPools",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"annotations": []
+			},
+			"dependsOn": []
 		}
 	]
 }
