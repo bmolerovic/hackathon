@@ -1941,7 +1941,7 @@
 						"spark.dynamicAllocation.enabled": "false",
 						"spark.dynamicAllocation.minExecutors": "2",
 						"spark.dynamicAllocation.maxExecutors": "2",
-						"spark.autotune.trackingId": "ff8cbf52-3dfa-466b-8202-75e8f8254b2e"
+						"spark.autotune.trackingId": "49605946-c49f-4d3d-b371-b56e4cfcb206"
 					}
 				},
 				"metadata": {
@@ -2059,6 +2059,162 @@
 						],
 						"outputs": [],
 						"execution_count": 24
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/nb_import_movies')]",
+			"type": "Microsoft.Synapse/workspaces/notebooks",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"nbformat": 4,
+				"nbformat_minor": 2,
+				"bigDataPool": {
+					"referenceName": "spworking",
+					"type": "BigDataPoolReference"
+				},
+				"sessionProperties": {
+					"driverMemory": "28g",
+					"driverCores": 4,
+					"executorMemory": "28g",
+					"executorCores": 4,
+					"numExecutors": 2,
+					"conf": {
+						"spark.dynamicAllocation.enabled": "false",
+						"spark.dynamicAllocation.minExecutors": "2",
+						"spark.dynamicAllocation.maxExecutors": "2",
+						"spark.autotune.trackingId": "12575da6-7032-4050-baa1-989795d571ea"
+					}
+				},
+				"metadata": {
+					"saveOutput": true,
+					"enableDebugMode": false,
+					"kernelspec": {
+						"name": "synapse_pyspark",
+						"display_name": "Synapse PySpark"
+					},
+					"language_info": {
+						"name": "python"
+					},
+					"a365ComputeOptions": {
+						"id": "/subscriptions/e8df41ef-dc98-4e75-802c-d0f7bc1433b7/resourceGroups/mdw-oh-01-eastus/providers/Microsoft.Synapse/workspaces/asateam1/bigDataPools/spworking",
+						"name": "spworking",
+						"type": "Spark",
+						"endpoint": "https://asateam1.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/spworking",
+						"auth": {
+							"type": "AAD",
+							"authResource": "https://dev.azuresynapse.net"
+						},
+						"sparkVersion": "3.2",
+						"nodeCount": 10,
+						"cores": 4,
+						"memory": 28
+					},
+					"sessionKeepAliveTimeout": 30
+				},
+				"cells": [
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							},
+							"microsoft": {
+								"language": "python"
+							}
+						},
+						"source": [
+							"%%pyspark\r\n",
+							"from pyspark.sql import SparkSession\r\n",
+							"import uuid\r\n",
+							"from pyspark.sql.types import *\r\n",
+							"account_name = \"sadlteam1gen2\"\r\n",
+							"container_name = \"silver\"\r\n",
+							"relative_path = \"/Catalog.parquet\"\r\n",
+							"adls_path = 'abfss://%s@%s.dfs.core.windows.net/%s' % (container_name, account_name, relative_path)\r\n",
+							"\r\n",
+							"df1 = spark.read.parquet(adls_path + '/*')\r\n",
+							"df1.show(5)"
+						],
+						"outputs": [],
+						"execution_count": 7
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"df1.createOrReplaceTempView(\"temp_Movie\")"
+						],
+						"outputs": [],
+						"execution_count": 8
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							},
+							"microsoft": {
+								"language": "sparksql"
+							},
+							"collapsed": false
+						},
+						"source": [
+							"%%sql\r\n",
+							"select DISTINCT MovieTitle, MovieID from temp_Movie "
+						],
+						"outputs": [],
+						"execution_count": 11
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							},
+							"microsoft": {
+								"language": "python"
+							}
+						},
+						"source": [
+							"%%pyspark\r\n",
+							"import pyspark.sql\r\n",
+							"destination = \"abfss://gold@sadlteam1gen2.dfs.core.windows.net/\"\r\n",
+							"temp = spark.sql(\"select DISTINCT MovieTitle, MovieID as MovieSK from temp_Catalog\")\r\n",
+							"temp.write.format('parquet').mode('overwrite').save(destination + '/DimMovies/test')"
+						],
+						"outputs": [],
+						"execution_count": 15
 					}
 				]
 			},
