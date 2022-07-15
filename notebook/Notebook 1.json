@@ -1,0 +1,125 @@
+{
+	"name": "Notebook 1",
+	"properties": {
+		"nbformat": 4,
+		"nbformat_minor": 2,
+		"bigDataPool": {
+			"referenceName": "splana",
+			"type": "BigDataPoolReference"
+		},
+		"sessionProperties": {
+			"driverMemory": "28g",
+			"driverCores": 4,
+			"executorMemory": "28g",
+			"executorCores": 4,
+			"numExecutors": 2,
+			"conf": {
+				"spark.dynamicAllocation.enabled": "false",
+				"spark.dynamicAllocation.minExecutors": "2",
+				"spark.dynamicAllocation.maxExecutors": "2",
+				"spark.autotune.trackingId": "81c00b25-5dba-46e8-b89f-7d799714b396"
+			}
+		},
+		"metadata": {
+			"saveOutput": true,
+			"enableDebugMode": false,
+			"kernelspec": {
+				"name": "synapse_pyspark",
+				"display_name": "Synapse PySpark"
+			},
+			"language_info": {
+				"name": "python"
+			},
+			"a365ComputeOptions": {
+				"id": "/subscriptions/e8df41ef-dc98-4e75-802c-d0f7bc1433b7/resourceGroups/mdw-oh-01-eastus/providers/Microsoft.Synapse/workspaces/asateam1/bigDataPools/splana",
+				"name": "splana",
+				"type": "Spark",
+				"endpoint": "https://asateam1.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/splana",
+				"auth": {
+					"type": "AAD",
+					"authResource": "https://dev.azuresynapse.net"
+				},
+				"sparkVersion": "3.2",
+				"nodeCount": 10,
+				"cores": 4,
+				"memory": 28,
+				"automaticScaleJobs": false
+			},
+			"sessionKeepAliveTimeout": 30
+		},
+		"cells": [
+			{
+				"cell_type": "code",
+				"metadata": {
+					"microsoft": {
+						"language": "python"
+					}
+				},
+				"source": [
+					"%%pyspark\r\n",
+					"from pyspark.sql import SparkSession\r\n",
+					"import uuid\r\n",
+					"from pyspark.sql.types import *\r\n",
+					"account_name = \"sadlteam1gen2\"\r\n",
+					"container_name = \"silver\"\r\n",
+					"relative_path = \"/Customer.parquet\"\r\n",
+					"adls_path = 'abfss://%s@%s.dfs.core.windows.net/%s' % (container_name, account_name, relative_path)\r\n",
+					"\r\n",
+					"df1 = spark.read.parquet(adls_path )\r\n",
+					"df1.show(5)"
+				],
+				"execution_count": 1
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "python"
+					}
+				},
+				"source": [
+					"%%pyspark\r\n",
+					"from pyspark.sql import SparkSession\r\n",
+					"import uuid\r\n",
+					"from pyspark.sql.types import *\r\n",
+					"account_name = \"sadlteam1gen2\"\r\n",
+					"container_name = \"silver\"\r\n",
+					"relative_path = \"/Address.parquet\"\r\n",
+					"adls_path = 'abfss://%s@%s.dfs.core.windows.net/%s' % (container_name, account_name, relative_path)\r\n",
+					"\r\n",
+					"df2 = spark.read.parquet(adls_path )\r\n",
+					"df2.show(5)"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"customer = df1.(df2,df1.customerid=df2.customerid)\r\n",
+					"customer.show()"
+				],
+				"execution_count": null
+			}
+		]
+	}
+}
