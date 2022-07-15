@@ -17,7 +17,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "f9654b85-ee84-40eb-82d2-4de928772545"
+				"spark.autotune.trackingId": "1e423f3f-28bb-437e-93ca-78b06d9f18e2"
 			}
 		},
 		"metadata": {
@@ -61,7 +61,7 @@
 					"import uuid\r\n",
 					"from pyspark.sql.types import *\r\n",
 					"from pyspark.sql.functions import *\r\n",
-					"df2 = df1.withColumn('id', monotonically_increasing_id())\r\n",
+					"\r\n",
 					"account_name = \"sadlteam1gen2\"\r\n",
 					"container_name = \"silver\"\r\n",
 					"relative_path = \"/Catalog.parquet\"\r\n",
