@@ -1941,7 +1941,7 @@
 						"spark.dynamicAllocation.enabled": "false",
 						"spark.dynamicAllocation.minExecutors": "2",
 						"spark.dynamicAllocation.maxExecutors": "2",
-						"spark.autotune.trackingId": "043ffcdc-1d59-460a-96da-e17eeca525a2"
+						"spark.autotune.trackingId": "ff8cbf52-3dfa-466b-8202-75e8f8254b2e"
 					}
 				},
 				"metadata": {
@@ -1966,7 +1966,8 @@
 						"sparkVersion": "3.2",
 						"nodeCount": 10,
 						"cores": 4,
-						"memory": 28
+						"memory": 28,
+						"automaticScaleJobs": false
 					},
 					"sessionKeepAliveTimeout": 30
 				},
@@ -1993,15 +1994,16 @@
 							"import uuid\r\n",
 							"from pyspark.sql.types import *\r\n",
 							"account_name = \"sadlteam1gen2\"\r\n",
-							"container_name = \"bronze\"\r\n",
-							"relative_path = \"/actors\"\r\n",
+							"container_name = \"silver\"\r\n",
+							"relative_path = \"/Catalog.parquet\"\r\n",
 							"adls_path = 'abfss://%s@%s.dfs.core.windows.net/%s' % (container_name, account_name, relative_path)\r\n",
 							"\r\n",
-							"df1 = spark.read.parquet(adls_path + '/actors')\r\n",
-							"df1.show(5)"
+							"df1 = spark.read.parquet(adls_path )\r\n",
+							"df1.show(5)\r\n",
+							""
 						],
 						"outputs": [],
-						"execution_count": 11
+						"execution_count": 2
 					},
 					{
 						"cell_type": "code",
@@ -2017,11 +2019,18 @@
 							}
 						},
 						"source": [
-							"df1.withColumn(\"id\", col=\"mladen\")\r\n",
-							"df1.createOrReplaceTempView(\"temp_Actors\")"
+							"from pyspark.sql.functions import lit\r\n",
+							"catalog = df1\r\n",
+							"catalog1=catalog.withColumn('ActorsSK', catalog['ActorID'])\r\n",
+							"catalog2=catalog1.withColumn('Gender',lit('F/M'))\r\n",
+							"\r\n",
+							"DimActors = catalog2.select([c for c in catalog2.columns if c in ['ActorsSK', 'ActorID', 'Actor', 'Gender']])\r\n",
+							"#actors.show(5)\r\n",
+							"\r\n",
+							""
 						],
 						"outputs": [],
-						"execution_count": 14
+						"execution_count": 23
 					},
 					{
 						"cell_type": "code",
@@ -2036,16 +2045,20 @@
 								}
 							},
 							"microsoft": {
-								"language": "sparksql"
+								"language": "python"
 							},
 							"collapsed": false
 						},
 						"source": [
-							"%%sql\r\n",
-							"select DISTINCT name from temp_Actors "
+							"%%pyspark\r\n",
+							"import pyspark.sql\r\n",
+							"destination = \"abfss://gold@sadlteam1gen2.dfs.core.windows.net/\"\r\n",
+							"#temp = spark.sql(\"select DISTINCT MovieTitle, MovieID as MovieSK from temp_Catalog\")\r\n",
+							"DimActors.write.format('parquet').mode('overwrite').save(destination + '/DimActors')\r\n",
+							""
 						],
 						"outputs": [],
-						"execution_count": 6
+						"execution_count": 24
 					}
 				]
 			},
