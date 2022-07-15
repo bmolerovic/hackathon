@@ -17,7 +17,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "32a9000f-71ac-43f5-85f3-f7fc3d01c84a"
+				"spark.autotune.trackingId": "043ffcdc-1d59-460a-96da-e17eeca525a2"
 			}
 		},
 		"metadata": {
@@ -67,6 +67,7 @@
 				"source": [
 					"%%pyspark\r\n",
 					"from pyspark.sql import SparkSession\r\n",
+					"import uuid\r\n",
 					"from pyspark.sql.types import *\r\n",
 					"account_name = \"sadlteam1gen2\"\r\n",
 					"container_name = \"bronze\"\r\n",
@@ -74,9 +75,51 @@
 					"adls_path = 'abfss://%s@%s.dfs.core.windows.net/%s' % (container_name, account_name, relative_path)\r\n",
 					"\r\n",
 					"df1 = spark.read.parquet(adls_path + '/actors')\r\n",
-					"df1.show()"
+					"df1.show(5)"
 				],
-				"execution_count": 1
+				"execution_count": 11
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"df1.withColumn(\"id\", col=\"mladen\")\r\n",
+					"df1.createOrReplaceTempView(\"temp_Actors\")"
+				],
+				"execution_count": 14
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"select DISTINCT name from temp_Actors "
+				],
+				"execution_count": 6
 			}
 		]
 	}
