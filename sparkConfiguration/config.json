@@ -1,0 +1,23 @@
+{
+	"name": "config",
+	"properties": {
+		"configs": {
+			"spark.rpc.message.maxsize": "512",
+			"spark.driver.maxResu1tSize": "leg",
+			"spark.speculation": "true",
+			"spark.executor.memory": "4g",
+			"spark.executor.cores": "1",
+			"spark.executor.instances": "1"
+		},
+		"created": "2022-07-15T14:27:57.6890000+02:00",
+		"createdBy": "mladen.bojic@comtrade.com",
+		"configMergeRule": {
+			"artifact.currentOperation.spark.rpc.message.maxsize": "replace",
+			"artifact.currentOperation.spark.driver.maxResu1tSize": "replace",
+			"artifact.currentOperation.spark.speculation": "replace",
+			"artifact.currentOperation.spark.executor.memory": "replace",
+			"artifact.currentOperation.spark.executor.cores": "replace",
+			"artifact.currentOperation.spark.executor.instances": "replace"
+		}
+	}
+}
